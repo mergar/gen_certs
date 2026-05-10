@@ -1,2 +1,4 @@
-README.md
-gen_certs.sh
+ca.crt
+ca.key
+server.crt
+server.key
