@@ -39,7 +39,7 @@ subjectAltName = @alt_names
 [alt_names]
 DNS.1 = $CN
 DNS.2 = www.$CN
-# IP.1 = 127.0.0.1 (раскомментируйте, если нужен IP)
+IP.1 = 127.0.0.1
 EOF
 
 # 1. Генерация CA (Корневой сертификат)
@@ -54,9 +54,40 @@ openssl req -new -key server.key -out server.csr -config openssl.cnf
 openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
     -out server.crt -days $DAYS -sha256 -extfile openssl.cnf -extensions v3_req
 
+openssl x509 -in /root/gen_certs/server.crt -text -noout | grep -A1 "Subject Alternative Name"
+
 # Очистка
 rm openssl.cnf server.csr ca.srl
 
-echo "Готово! Файлы для Nginx: server.crt и server.key"
+cat <<EOF
+Done: server.crt + server.key
+Nginx:
+..
+        listen 1443 ssl;
+
+        ssl_certificate     /root/gen_certs/server.crt;
+        ssl_certificate_key /root/gen_certs/server.key;
+
+        ssl_protocols       TLSv1.2 TLSv1.3;
+        ssl_ciphers         HIGH:!aNULL:!MD5;
+..
+
+EOF
+
+case $( uname -s ) in
+	FreeBSD)
+		echo "Install CERT"
+		echo "FreeBSD:"
+		echo "mkdir -p /usr/local/etc/ssl/certs"
+		echo "cp /root/gen_certs/ca.crt /usr/local/etc/ssl/certs/"
+		echo "certctl rehash"
+		mkdir -p /usr/local/etc/ssl/certs
+		cp /root/gen_certs/ca.crt /usr/local/etc/ssl/certs/
+		certctl rehash
+		;;
+	*)
+		true
+		;;
+esac
 
 exit 0
