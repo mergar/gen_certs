@@ -2,3 +2,4 @@ ca.crt
 ca.key
 server.crt
 server.key
+server.pem
