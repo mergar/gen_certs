@@ -90,4 +90,10 @@ case $( uname -s ) in
 		;;
 esac
 
+# 
+echo "for haproxy: cat /root/gen_certs/server.crt /root/gen_certs/server.key > /root/gen_certs/server.pem"
+cat /root/gen_certs/server.crt /root/gen_certs/server.key > /root/gen_certs/server.pem
+
+
+
 exit 0
